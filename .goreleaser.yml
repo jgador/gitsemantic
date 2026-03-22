@@ -1,0 +1,53 @@
+version: 2
+
+project_name: gitsemantic
+
+builds:
+  - id: gitsemantic-linux-amd64
+    main: .
+    binary: gitsemantic
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+  - id: gitsemantic-darwin-arm64
+    main: .
+    binary: gitsemantic
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - arm64
+  - id: gitsemantic-windows-amd64
+    main: .
+    binary: gitsemantic
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+
+archives:
+  - id: gitsemantic
+    builds:
+      - gitsemantic-linux-amd64
+      - gitsemantic-darwin-arm64
+      - gitsemantic-windows-amd64
+    formats:
+      - tar.gz
+    format_overrides:
+      - goos: windows
+        formats:
+          - zip
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+  use: git
