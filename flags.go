@@ -17,7 +17,7 @@ type CommonOptionsRaw struct {
 func bindCommonFlags(fs *flag.FlagSet, common *CommonOptionsRaw) {
 	fs.StringVar(&common.ConfigPath, "config", "", "Path to the CLI config file.")
 	fs.StringVar(&common.Server, "server", "", "Base URL of the GitSemantic server.")
-	fs.StringVar(&common.Token, "token", "", "Bearer token for protected API endpoints.")
+	fs.StringVar(&common.Token, "token", "", "Bearer token for hosted or otherwise authenticated API endpoints.")
 	fs.StringVar(&common.TokenFile, "token-file", "", "Path to a file containing the bearer token.")
 	fs.StringVar(&common.APIVersion, "api-version", "", "API version to pin on requests. Defaults to 1.")
 	fs.StringVar(&common.Output, "output", "", "Output format: text or json.")

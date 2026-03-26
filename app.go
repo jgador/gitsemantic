@@ -116,7 +116,7 @@ func (a *App) runRepos(ctx context.Context, args []string) int {
 		return a.renderError("repos", resolveRequestedOutputMode(common.Output), nil, err)
 	}
 
-	token, err := settings.ResolveBearerToken(true)
+	token, err := settings.ResolveBearerToken(false)
 	if err != nil {
 		return a.renderError("repos", settings.Output, &settings, err)
 	}
@@ -188,7 +188,7 @@ func (a *App) runQuery(ctx context.Context, args []string) int {
 		return a.renderError("query", settings.Output, &settings, errors.New("query text is required"))
 	}
 
-	token, err := settings.ResolveBearerToken(true)
+	token, err := settings.ResolveBearerToken(false)
 	if err != nil {
 		return a.renderError("query", settings.Output, &settings, err)
 	}
@@ -335,7 +335,7 @@ func (a *App) runIngest(ctx context.Context, args []string) int {
 		return a.renderError("ingest", settings.Output, &settings, errors.New("repo is required"))
 	}
 
-	token, err := settings.ResolveBearerToken(true)
+	token, err := settings.ResolveBearerToken(false)
 	if err != nil {
 		return a.renderError("ingest", settings.Output, &settings, err)
 	}
@@ -417,17 +417,20 @@ func (a *App) runStatus(ctx context.Context, args []string) int {
 	token, tokenErr := settings.ResolveBearerToken(false)
 	if tokenErr != nil {
 		warnings = append(warnings, tokenErr.Error())
-	} else if token == "" {
-		warnings = append(warnings, "no bearer token configured; protected repo and ingestion endpoints were skipped")
 	}
 
-	if token != "" {
-		protectedClient := NewClient(settings, token)
-		repos, err := protectedClient.ListRepos(ctx)
-		if err != nil {
+	protectedClient := NewClient(settings, token)
+	repos, err := protectedClient.ListRepos(ctx)
+	if err != nil {
+		if token == "" && isAuthenticationError(err) {
+			warnings = append(warnings, "this server requires a bearer token for repo and ingestion endpoints")
+			if strings.TrimSpace(jobID) != "" {
+				warnings = append(warnings, "job status requires a bearer token on this server")
+			}
+		} else {
 			return a.renderError("status", settings.Output, &settings, err)
 		}
-
+	} else {
 		sort.SliceStable(repos, func(i int, j int) bool {
 			return strings.ToLower(repos[i].Name) < strings.ToLower(repos[j].Name)
 		})
@@ -438,13 +441,15 @@ func (a *App) runStatus(ctx context.Context, args []string) int {
 		if strings.TrimSpace(jobID) != "" {
 			job, err := protectedClient.GetIngestionStatus(ctx, strings.TrimSpace(jobID))
 			if err != nil {
-				return a.renderError("status", settings.Output, &settings, err)
+				if token == "" && isAuthenticationError(err) {
+					warnings = append(warnings, "job status requires a bearer token on this server")
+				} else {
+					return a.renderError("status", settings.Output, &settings, err)
+				}
+			} else {
+				output.Job = job
 			}
-
-			output.Job = job
 		}
-	} else if strings.TrimSpace(jobID) != "" {
-		warnings = append(warnings, "job status requires a bearer token; --job was skipped")
 	}
 
 	output.Warnings = warnings
@@ -555,7 +560,7 @@ func (a *App) writeStatusUsage(output io.Writer) {
 	fmt.Fprintln(output, "Usage:")
 	fmt.Fprintln(output, "  gitsemantic status [--job <id>] [common flags]")
 	fmt.Fprintln(output)
-	fmt.Fprintln(output, "Call /api/health and, when a bearer token is available, /api/repos and optionally /api/ingest/{jobId}.")
+	fmt.Fprintln(output, "Call /api/health and probe /api/repos plus optionally /api/ingest/{jobId}.")
 	fmt.Fprintln(output)
 	a.writeCommonFlags(output)
 	fmt.Fprintln(output, "Status flags:")
@@ -613,11 +618,20 @@ func (a *App) writeCommonFlags(output io.Writer) {
 	fmt.Fprintln(output, "Common flags:")
 	fmt.Fprintln(output, "  --config string       Path to config file. Default: ~/.gitsemantic/config.yaml")
 	fmt.Fprintln(output, "  --server string       Base URL of the GitSemantic server. Default: http://127.0.0.1:7280")
-	fmt.Fprintln(output, "  --token string        Bearer token for protected endpoints.")
+	fmt.Fprintln(output, "  --token string        Bearer token for hosted or otherwise authenticated servers.")
 	fmt.Fprintln(output, "  --token-file string   Path to a bearer token file. Default: ~/.gitsemantic/token")
 	fmt.Fprintln(output, "  --api-version string  API version to pin. Default: 1")
 	fmt.Fprintln(output, "  --output string       text or json. Default: text")
 	fmt.Fprintln(output)
+}
+
+func isAuthenticationError(err error) bool {
+	var apiError *APIError
+	if !errors.As(err, &apiError) {
+		return false
+	}
+
+	return apiError.StatusCode == 401 || apiError.StatusCode == 403
 }
 
 func newFlagSet(name string, usage func(io.Writer)) *flag.FlagSet {

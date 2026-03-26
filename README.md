@@ -15,7 +15,7 @@ GitSemantic CLI is part of the open-source effort around Goblin Board and gives 
 
 Run a compatible GitSemantic server with Docker and mount the repository you want to index into the server container.
 
-Example `docker-compose.yml`:
+Example `docker-compose.yml` for local self-hosted use:
 
 ```yaml
 name: gitsemantic
@@ -25,10 +25,9 @@ services:
     container_name: gitsemantic-server
     image: your-compatible-gitsemantic-server-image
     ports:
-      - "7280:7280"
+      - "127.0.0.1:7280:7280"
     environment:
-      ASPNETCORE_URLS: http://+:7280
-      GITSEMANTIC_API_PORT: 7280
+      GITSEMANTIC_SERVER_MODE: local
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       # Or use Azure OpenAI instead:
       # AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
@@ -45,11 +44,12 @@ docker compose --project-name gitsemantic up -d
 
 ## Connect with GitSemantic CLI
 
-Point the CLI at the server and provide the bearer token from your server deployment:
+### Local Self-Hosted Server
+
+Point the CLI at the local server:
 
 ```bash
 export GITSEMANTIC_SERVER=http://127.0.0.1:7280
-export GITSEMANTIC_TOKEN=<your-server-token>
 export GITSEMANTIC_API_VERSION=1
 ```
 
@@ -85,9 +85,19 @@ Run a query:
 gitsemantic query "how does authentication work?" --repo-id <repo-id>
 ```
 
-Notes:
+### Hosted Server
 
-- Protected endpoints require `GITSEMANTIC_TOKEN` or `GITSEMANTIC_TOKEN_FILE`.
+If the server is running in hosted mode, configure the CLI with the matching bearer token:
+
+```bash
+export GITSEMANTIC_SERVER=https://your-gitsemantic-server.example.com
+export GITSEMANTIC_TOKEN=<your-server-token>
+export GITSEMANTIC_API_VERSION=1
+```
+
+## Notes
+
+- Hosted or otherwise authenticated servers require `GITSEMANTIC_TOKEN` or `GITSEMANTIC_TOKEN_FILE`.
 - `--repo` must be the path visible inside the server container. With the example above, use `/repo`.
 - Set either `OPENAI_API_KEY` or both `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY`.
 - `Issues` ingestion is still under development.
