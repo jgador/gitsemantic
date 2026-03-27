@@ -1,0 +1,22 @@
+name: gitsemantic
+
+services:
+  gitsemantic-server:
+    container_name: gitsemantic-server
+    image: jessegador/gitsemantic-server:v0.1.0
+    ports:
+      - "7280:7280"
+    environment:
+      GITSEMANTIC_SERVER_MODE: local
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      # Or use Azure OpenAI instead:
+      # AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
+      # AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
+    volumes:
+      - gitsemantic_pgdata:/var/lib/postgresql
+      # Replace the sample absolute path below with the host repository
+      # you want to ingest.
+      - "/absolute/path/to/your/repo:/repo:ro"
+
+volumes:
+  gitsemantic_pgdata:

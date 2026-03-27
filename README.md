@@ -13,45 +13,19 @@ GitSemantic CLI is part of the open-source effort around Goblin Board and gives 
 
 ## Run GitSemantic Server with Docker
 
-Run a compatible GitSemantic server with Docker and mount the repository you want to index into the server container.
+An example Compose file is included at `docker-compose.example.yml`.
 
-Example `docker-compose.yml` for local self-hosted use:
-
-```yaml
-name: gitsemantic
-
-services:
-  gitsemantic-server:
-    container_name: gitsemantic-server
-    image: your-compatible-gitsemantic-server-image
-    ports:
-      - "127.0.0.1:7280:7280"
-    environment:
-      GITSEMANTIC_SERVER_MODE: local
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      # Or use Azure OpenAI instead:
-      # AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-}
-      # AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-}
-    volumes:
-      - ./:/repo:ro
-```
-
-Start the named Compose project and server container:
+Replace the sample absolute path `/absolute/path/to/your/repo` in that file with the host repository you want to ingest, then start the local self-hosted server:
 
 ```bash
-docker compose --project-name gitsemantic up -d
+docker compose -f docker-compose.example.yml --project-name gitsemantic up -d
 ```
 
 ## Connect with GitSemantic CLI
 
 ### Local Self-Hosted Server
 
-Point the CLI at the local server:
-
-```bash
-export GITSEMANTIC_SERVER=http://127.0.0.1:7280
-export GITSEMANTIC_API_VERSION=1
-```
+The CLI already defaults to `http://127.0.0.1:7280` with API version `1`, so you can run it directly against the local server.
 
 Check that the server is ready:
 
@@ -87,17 +61,10 @@ gitsemantic query "how does authentication work?" --repo-id <repo-id>
 
 ### Hosted Server
 
-If the server is running in hosted mode, configure the CLI with the matching bearer token:
-
-```bash
-export GITSEMANTIC_SERVER=https://your-gitsemantic-server.example.com
-export GITSEMANTIC_TOKEN=<your-server-token>
-export GITSEMANTIC_API_VERSION=1
-```
+Hosted GitSemantic server mode is not part of this OSS workflow. That hosted experience will be supported through Goblin Board instead.
 
 ## Notes
 
-- Hosted or otherwise authenticated servers require `GITSEMANTIC_TOKEN` or `GITSEMANTIC_TOKEN_FILE`.
 - `--repo` must be the path visible inside the server container. With the example above, use `/repo`.
 - Set either `OPENAI_API_KEY` or both `AZURE_OPENAI_ENDPOINT` and `AZURE_OPENAI_API_KEY`.
 - `Issues` ingestion is still under development.

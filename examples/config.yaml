@@ -1,6 +1,0 @@
-# Example GitSemantic CLI config.
-server: http://127.0.0.1:7280
-token_file: ~/.gitsemantic/token
-repo_id: 1
-api_version: "1"
-output: text
