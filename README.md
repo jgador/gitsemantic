@@ -5,7 +5,7 @@ GitSemantic CLI is a thin HTTP client for compatible GitSemantic server deployme
 - Goblin Board: https://goblinboard.com
 - Semantic Search: https://goblinboard.com/semantic-search
 
-> Active development: GitSemantic CLI is not ready for use yet. We are aiming to make an early testing build available by the end of March 2026, if current work stays on track.
+> GitSemantic CLI can already be used today. A sample `SKILL.md` for coding agents will be added later in `gitsemantic`, but you can use the CLI directly now.
 
 GitSemantic CLI helps AI coding agents work across the full history of a repository, not just the current checkout. It has been tested against `dotnet/runtime`, a codebase with more than 140,000 commits. You can try the experience at https://goblinboard.com/semantic-search.
 
