@@ -11,6 +11,18 @@ GitSemantic CLI helps AI coding agents work across the full history of a reposit
 
 GitSemantic CLI is part of the open-source effort around Goblin Board and gives developers a preview of the repository-history workflows behind Goblin Board integrations.
 
+## Download GitSemantic CLI
+
+Prebuilt CLI archives are attached to each GitHub Release.
+
+- Windows x64: `gitsemantic_<version>_windows_amd64.zip`
+- Linux x64: `gitsemantic_<version>_linux_amd64.tar.gz`
+- macOS Apple Silicon: `gitsemantic_<version>_darwin_arm64.tar.gz`
+- macOS Intel: `gitsemantic_<version>_darwin_amd64.tar.gz`
+- Checksums: `checksums.txt`
+
+Maintainers publish these assets by pushing a version tag such as `v0.1.0`. The release workflow builds the archives and uploads them to the GitHub Release automatically.
+
 ## Run GitSemantic Server with Docker
 
 An example Compose file is included at `docker-compose.example.yml`.

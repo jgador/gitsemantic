@@ -21,6 +21,15 @@ builds:
       - darwin
     goarch:
       - arm64
+  - id: gitsemantic-darwin-amd64
+    main: .
+    binary: gitsemantic
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
   - id: gitsemantic-windows-amd64
     main: .
     binary: gitsemantic
@@ -36,6 +45,7 @@ archives:
     builds:
       - gitsemantic-linux-amd64
       - gitsemantic-darwin-arm64
+      - gitsemantic-darwin-amd64
       - gitsemantic-windows-amd64
     formats:
       - tar.gz
