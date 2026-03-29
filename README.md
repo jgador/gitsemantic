@@ -23,6 +23,14 @@ Prebuilt CLI archives are attached to each GitHub Release.
 
 Maintainers publish these assets by pushing a version tag such as `v0.1.0`. The release workflow builds the archives and uploads them to the GitHub Release automatically.
 
+## Install on Windows
+
+For a direct Windows install without waiting for WinGet publication, paste this one-liner into PowerShell. It downloads the existing release zip, extracts `gitsemantic.exe` into `%LOCALAPPDATA%\Programs\GitSemantic`, and adds that directory to the user `PATH`.
+
+```powershell
+$version="0.1.0";$installDir=Join-Path $env:LOCALAPPDATA "Programs\GitSemantic";$assetName="gitsemantic_${version}_windows_amd64.zip";$downloadUrl="https://github.com/jgador/gitsemantic/releases/download/v$version/$assetName";$tempDir=Join-Path $env:TEMP ("gitsemantic-install-"+[guid]::NewGuid().ToString("N"));$zipPath=Join-Path $tempDir $assetName;New-Item -ItemType Directory -Path $tempDir -Force|Out-Null;New-Item -ItemType Directory -Path $installDir -Force|Out-Null;try{Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath;Expand-Archive -LiteralPath $zipPath -DestinationPath $tempDir -Force;Copy-Item -LiteralPath (Join-Path $tempDir "gitsemantic.exe") -Destination (Join-Path $installDir "gitsemantic.exe") -Force;$u=@([Environment]::GetEnvironmentVariable("Path","User") -split ";"|Where-Object{$_});if($u -notcontains $installDir){[Environment]::SetEnvironmentVariable("Path",(($u+$installDir)-join ";"),"User")};$p=@($env:Path -split ";"|Where-Object{$_});if($p -notcontains $installDir){$env:Path=if([string]::IsNullOrWhiteSpace($env:Path)){$installDir}else{"$env:Path;$installDir"}}}finally{Remove-Item -LiteralPath $tempDir -Recurse -Force -ErrorAction SilentlyContinue};gitsemantic version
+```
+
 ## Run GitSemantic Server with Docker
 
 An example Compose file is included at `docker-compose.example.yml`.
