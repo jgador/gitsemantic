@@ -23,6 +23,27 @@ Prebuilt CLI archives are attached to each GitHub Release.
 
 Maintainers publish these assets by pushing a version tag such as `v0.1.0`. The release workflow builds the archives and uploads them to the GitHub Release automatically.
 
+## Windows Package Manager
+
+A ready-to-submit WinGet manifest for `JGador.GitSemantic` version `0.1.0` lives under `packaging/winget/manifests/j/JGador/GitSemantic/0.1.0`.
+
+If you want to test the package locally before it is merged into the WinGet community repository, run:
+
+```powershell
+winget settings --enable LocalManifestFiles
+winget install --manifest .\packaging\winget\manifests\j\JGador\GitSemantic\0.1.0
+```
+
+Run the `winget settings --enable LocalManifestFiles` command once from an elevated PowerShell session.
+
+After the package is accepted into `microsoft/winget-pkgs`, install it with:
+
+```powershell
+winget install --id JGador.GitSemantic
+```
+
+See `packaging/winget/README.md` for the release-to-WinGet workflow and the exact `v0.1.0` asset metadata used in the manifest.
+
 ## Run GitSemantic Server with Docker
 
 An example Compose file is included at `docker-compose.example.yml`.
